@@ -8,7 +8,11 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
-![GPU 容器监控仪表板](https://via.placeholder.com/800x400/667eea/ffffff?text=GPU+Container+Monitor+Dashboard)
+## 📸 仪表板预览
+
+![GPU 容器监控仪表板](images/dashboard-screenshot.png)
+
+*实时 GPU 监控，界面美观现代 - 一目了然地追踪温度、功耗、利用率和显存使用情况*
 
 ## ✨ 功能特性
 

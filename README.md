@@ -8,7 +8,11 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
-![GPU Container Monitor Dashboard](https://via.placeholder.com/800x400/667eea/ffffff?text=GPU+Container+Monitor+Dashboard)
+## 📸 Dashboard Preview
+
+![GPU Container Monitor Dashboard](images/dashboard-screenshot.png)
+
+*Real-time GPU monitoring with beautiful, modern interface - Track temperature, power consumption, utilization, and VRAM usage at a glance*
 
 ## ✨ Features
 

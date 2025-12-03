@@ -8,7 +8,11 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
-![GPU コンテナモニターダッシュボード](https://via.placeholder.com/800x400/667eea/ffffff?text=GPU+Container+Monitor+Dashboard)
+## 📸 ダッシュボードプレビュー
+
+![GPU コンテナモニターダッシュボード](images/dashboard-screenshot.png)
+
+*リアルタイム GPU モニタリング、美しくモダンなインターフェース - 温度、消費電力、使用率、VRAM 使用状況を一目で確認*
 
 ## ✨ 機能
 

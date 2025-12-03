@@ -1,519 +1,854 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>GPU 容器监控中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPU Container Monitor · Enterprise Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e22ce 100%);
-            padding: 20px; 
-            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0e27;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
         }
-        .header { 
-            text-align: center; 
-            color: white; 
-            margin-bottom: 30px;
-            animation: fadeIn 0.5s;
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
-        .header h1 { 
-            font-size: 3em; 
-            margin-bottom: 10px; 
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
-            background: linear-gradient(45deg, #fff, #a78bfa);
+        
+        .container { 
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto; 
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            line-height: 1.2;
         }
-        .controls { 
-            background: rgba(255,255,255,0.1); 
+        
+        .header .subtitle {
+            font-size: 1.1em;
+            color: rgba(255,255,255,0.6);
+            font-weight: 400;
+            margin-top: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .github-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .github-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
-            padding: 20px; 
-            border-radius: 15px; 
-            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+        
+        .github-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
+        }
+        
+        .github-btn.star {
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            border-color: transparent;
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+        }
+        
+        .github-btn.star:hover {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            box-shadow: 0 6px 30px rgba(245, 158, 11, 0.6);
+        }
+        
+        .controls-panel {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 25px 35px;
+            margin-bottom: 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .refresh-control {
+        
+        .control-group {
             display: flex;
-            gap: 15px;
+            gap: 20px;
             align-items: center;
         }
-        .refresh-btn { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            border: none; 
-            padding: 12px 30px; 
-            border-radius: 25px; 
-            cursor: pointer; 
-            font-size: 16px; 
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); 
-            transition: all 0.3s;
-        }
-        .refresh-btn:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); 
-        }
-        .interval-selector {
-            display: flex;
-            gap: 10px;
-            align-items: center;
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            font-weight: bold;
-        }
-        .interval-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: 2px solid rgba(255,255,255,0.3);
-            padding: 8px 16px;
-            border-radius: 20px;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
             cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .interval-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 6px;
+            border-radius: 12px;
+        }
+        
+        .interval-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 500;
+            margin-right: 8px;
+            padding-left: 8px;
+        }
+        
+        .interval-btn {
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
             transition: all 0.3s;
-            font-weight: bold;
         }
+        
         .interval-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: white;
         }
+        
         .interval-btn.active {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-color: #f5576c;
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
         }
+        
         .gpu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
+        
         .gpu-card {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            transition: all 0.3s;
-            animation: slideIn 0.5s;
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeIn 0.6s ease-out backwards;
         }
+        
         .gpu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            transform: translateY(-8px);
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
         }
+        
         .gpu-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
+        
         .gpu-name {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
+        
         .gpu-index {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
+        
         .gpu-stats {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
         }
+        
         .stat-item {
-            background: #f5f5f5;
-            padding: 10px;
-            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
+        
         .stat-label {
             font-size: 0.85em;
-            color: #666;
-            margin-bottom: 5px;
-        }
-        .stat-value {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #333;
-        }
-        .progress-bar {
-            width: 100%;
-            height: 25px;
-            background: #e0e0e0;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-top: 5px;
-            position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            transition: width 0.5s ease;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 0.85em;
+            gap: 6px;
         }
-        .progress-gpu { background: linear-gradient(90deg, #4CAF50, #8BC34A); }
-        .progress-memory { background: linear-gradient(90deg, #2196F3, #03A9F4); }
-        .container-section {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            animation: fadeIn 0.5s;
+        
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #fff;
         }
-        .section-title {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #333;
+        
+        .metric-bar {
             margin-bottom: 20px;
+        }
+        
+        .metric-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: rgba(255,255,255,0.7);
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .progress-gpu { background: linear-gradient(90deg, #10b981, #34d399); }
+        .progress-memory { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+        .progress-power { transition: background 0.6s; }
+        
+        .container-section {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 35px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
         }
-        .stats-summary {
+        
+        .section-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #fff;
             display: flex;
+            align-items: center;
             gap: 15px;
         }
-        .summary-badge {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
-        }
-        .status-legend {
+        
+        .sort-controls {
             display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .sort-label {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .sort-btn {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .sort-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .sort-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .container-group {
+            margin-bottom: 35px;
+        }
+        
+        .group-header {
+            display: flex;
+            align-items: center;
             gap: 15px;
             margin-bottom: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
+            padding: 15px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border-left: 4px solid;
+        }
+        
+        .group-header.healthy { border-left-color: #10b981; }
+        .group-header.running { border-left-color: #22c55e; }
+        .group-header.paused { border-left-color: #f59e0b; }
+        .group-header.stopped { border-left-color: #ef4444; }
+        .group-header.other { border-left-color: #6b7280; }
+        
+        .group-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #fff;
+        }
+        
+        .group-count {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        
+        .stats-badges {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .stat-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95em;
+            box-shadow: 0 4px 20px rgba(245, 87, 108, 0.3);
+        }
+        
+        .status-legend {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
             flex-wrap: wrap;
         }
+        
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             font-size: 0.9em;
+            color: rgba(255,255,255,0.8);
         }
+        
         .legend-dot {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 15px; 
+        
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
         }
-        th, td { 
-            padding: 15px; 
-            text-align: left; 
-            border-bottom: 1px solid #e0e0e0; 
+        
+        thead tr {
+            background: rgba(255,255,255,0.05);
         }
-        th { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            font-weight: bold;
-            position: sticky;
-            top: 0;
+        
+        th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
         }
-        tr:hover { background: #f5f5f5; }
-        .memory { 
-            font-weight: bold; 
-            color: #2196F3; 
-            font-size: 1.1em; 
+        
+        th:first-child { border-radius: 12px 0 0 12px; }
+        th:last-child { border-radius: 0 12px 12px 0; }
+        
+        tbody tr {
+            background: rgba(255,255,255,0.03);
+            transition: all 0.3s;
         }
+        
+        tbody tr:hover {
+            background: rgba(255,255,255,0.08);
+            transform: scale(1.01);
+        }
+        
+        td {
+            padding: 20px;
+            border: none;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        tbody tr td:first-child { border-radius: 12px 0 0 12px; }
+        tbody tr td:last-child { border-radius: 0 12px 12px 0; }
+        
+        .memory {
+            font-weight: 700;
+            color: #60a5fa;
+            font-size: 1.1em;
+        }
+        
         .gpu-badge {
             display: inline-block;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 4px 10px;
-            border-radius: 12px;
+            padding: 6px 14px;
+            border-radius: 8px;
             font-size: 0.85em;
-            font-weight: bold;
-            margin: 2px;
+            font-weight: 600;
+            margin: 3px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
-        .status { 
-            padding: 6px 14px; 
-            border-radius: 20px; 
-            font-size: 0.9em; 
-            font-weight: bold; 
+        
+        .status {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
-        /* 运行中 - 绿色 */
-        .status-running { 
-            background: linear-gradient(135deg, #4CAF50, #66BB6A);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        
+        .status-healthy { background: linear-gradient(135deg, #10b981, #34d399); color: white; }
+        .status-running { background: linear-gradient(135deg, #22c55e, #4ade80); color: white; }
+        .status-paused { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: white; }
+        .status-restarting { background: linear-gradient(135deg, #eab308, #facc15); color: #000; }
+        .status-exited { background: linear-gradient(135deg, #ef4444, #f87171); color: white; }
+        .status-created { background: linear-gradient(135deg, #6b7280, #9ca3af); color: white; }
+        .status-removing { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; }
+        .status-dead { background: linear-gradient(135deg, #991b1b, #dc2626); color: white; }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
-        /* 健康运行 - 深绿色 */
-        .status-healthy { 
-            background: linear-gradient(135deg, #2E7D32, #4CAF50);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(46, 125, 50, 0.3);
+        
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: white;
         }
-        /* 暂停中 - 橙色 */
-        .status-paused { 
-            background: linear-gradient(135deg, #FF9800, #FFB74D);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+        
+        .btn-pause { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .btn-unpause { background: linear-gradient(135deg, #10b981, #34d399); }
+        .btn-restart { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+        .btn-stop { background: linear-gradient(135deg, #ef4444, #f87171); }
+        .btn-start { background: linear-gradient(135deg, #10b981, #34d399); }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        /* 重启中 - 黄色 */
-        .status-restarting { 
-            background: linear-gradient(135deg, #FFC107, #FFD54F);
-            color: #333; 
-            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
-        }
-        /* 已停止 - 红色 */
-        .status-exited { 
-            background: linear-gradient(135deg, #f44336, #EF5350);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
-        }
-        /* 创建未启动 - 灰色 */
-        .status-created { 
-            background: linear-gradient(135deg, #9E9E9E, #BDBDBD);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(158, 158, 158, 0.3);
-        }
-        /* 移除中 - 深红色 */
-        .status-removing { 
-            background: linear-gradient(135deg, #C62828, #E53935);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(198, 40, 40, 0.3);
-        }
-        /* 死亡/错误 - 紫红色 */
-        .status-dead { 
-            background: linear-gradient(135deg, #880E4F, #AD1457);
-            color: white; 
-            box-shadow: 0 2px 8px rgba(136, 14, 79, 0.3);
-        }
-        .status-icon {
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.6);
             font-size: 1.1em;
         }
-        .actions { display: flex; gap: 5px; flex-wrap: wrap; }
-        .action-btn { 
-            padding: 6px 12px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            font-size: 0.85em; 
-            font-weight: bold; 
-            transition: all 0.2s;
-        }
-        .btn-pause { background: #FF9800; color: white; }
-        .btn-pause:hover { background: #F57C00; transform: scale(1.05); }
-        .btn-unpause { background: #4CAF50; color: white; }
-        .btn-unpause:hover { background: #388E3C; transform: scale(1.05); }
-        .btn-restart { background: #2196F3; color: white; }
-        .btn-restart:hover { background: #1976D2; transform: scale(1.05); }
-        .btn-stop { background: #f44336; color: white; }
-        .btn-stop:hover { background: #d32f2f; transform: scale(1.05); }
-        .btn-start { background: #4CAF50; color: white; }
-        .btn-start:hover { background: #388E3C; transform: scale(1.05); }
-        .loading { text-align: center; padding: 20px; color: #666; }
+        
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideIn {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .gpu-card:nth-child(1) { animation-delay: 0.1s; }
+        .gpu-card:nth-child(2) { animation-delay: 0.2s; }
+        .gpu-card:nth-child(3) { animation-delay: 0.3s; }
+        .gpu-card:nth-child(4) { animation-delay: 0.4s; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 GPU 容器监控中心</h1>
-        <p>实时监控 GPU 负载与 Docker 容器状态</p>
-    </div>
-    
-    <div class="controls">
-        <div class="refresh-control">
-            <button class="refresh-btn" onclick="loadData()">🔄 立即刷新</button>
-            <div class="interval-selector">
-                <span>刷新间隔:</span>
-                <button class="interval-btn" onclick="setInterval(1000)" data-interval="1000">1秒</button>
-                <button class="interval-btn active" onclick="setInterval(3000)" data-interval="3000">3秒</button>
-                <button class="interval-btn" onclick="setInterval(5000)" data-interval="5000">5秒</button>
-                <button class="interval-btn" onclick="setInterval(10000)" data-interval="10000">10秒</button>
+    <div class="container">
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo-icon">⚡</div>
+                <h1>GPU MONITOR</h1>
             </div>
-        </div>
-    </div>
-
-    <div class="gpu-grid" id="gpuGrid"></div>
-
-    <div class="container-section">
-        <div class="section-title">
-            <span>📦 GPU 容器列表</span>
-            <div class="stats-summary">
-                <div class="summary-badge">容器: <span id="containerCount">0</span></div>
-                <div class="summary-badge">总显存: <span id="totalMemory">0</span> MiB</div>
+            <p class="subtitle">Enterprise Container Intelligence Platform</p>
+            <div class="github-links">
+                <a href="https://github.com/neosun100/gpu-container-monitor" target="_blank" class="github-btn star">
+                    <span>⭐</span>
+                    <span>Star on GitHub</span>
+                </a>
+                <a href="https://github.com/neosun100/gpu-container-monitor/issues/new" target="_blank" class="github-btn">
+                    <span>🐛</span>
+                    <span>Report Bug</span>
+                </a>
+                <a href="https://github.com/neosun100/gpu-container-monitor/issues/new?labels=enhancement" target="_blank" class="github-btn">
+                    <span>💡</span>
+                    <span>Request Feature</span>
+                </a>
             </div>
         </div>
         
-        <div class="status-legend">
-            <div class="legend-item">
-                <div class="legend-dot" style="background: linear-gradient(135deg, #2E7D32, #4CAF50);"></div>
-                <span>健康运行</span>
+        <div class="controls-panel">
+            <div class="control-group">
+                <button class="refresh-btn" onclick="loadData()">
+                    <span>🔄</span>
+                    <span>Refresh Now</span>
+                </button>
             </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: linear-gradient(135deg, #4CAF50, #66BB6A);"></div>
-                <span>运行中</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: linear-gradient(135deg, #FF9800, #FFB74D);"></div>
-                <span>已暂停</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: linear-gradient(135deg, #FFC107, #FFD54F);"></div>
-                <span>重启中</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: linear-gradient(135deg, #f44336, #EF5350);"></div>
-                <span>已停止</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-dot" style="background: linear-gradient(135deg, #9E9E9E, #BDBDBD);"></div>
-                <span>未启动</span>
+            <div class="control-group">
+                <div class="interval-group">
+                    <span class="interval-label">Auto Refresh</span>
+                    <button class="interval-btn" onclick="updateInterval(1000)" data-interval="1000">1s</button>
+                    <button class="interval-btn active" onclick="updateInterval(3000)" data-interval="3000">3s</button>
+                    <button class="interval-btn" onclick="updateInterval(5000)" data-interval="5000">5s</button>
+                    <button class="interval-btn" onclick="updateInterval(10000)" data-interval="10000">10s</button>
+                </div>
             </div>
         </div>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>容器名称</th>
-                    <th>容器 ID</th>
-                    <th>GPU 设备</th>
-                    <th>状态</th>
-                    <th>显存使用</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr><td colspan="6" class="loading">加载中...</td></tr>
-            </tbody>
-        </table>
+
+        <div class="gpu-grid" id="gpuGrid"></div>
+
+        <div class="container-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>📦</span>
+                    <span>Container Fleet</span>
+                </div>
+                <div class="sort-controls">
+                    <span class="sort-label">Sort by:</span>
+                    <button class="sort-btn" onclick="setSortBy('name')" id="sort-name">Name</button>
+                    <button class="sort-btn active" onclick="setSortBy('memory')" id="sort-memory">VRAM ↓</button>
+                    <button class="sort-btn" onclick="setSortBy('gpu')" id="sort-gpu">GPU ID</button>
+                </div>
+                <div class="stats-badges">
+                    <div class="stat-badge">Containers: <span id="containerCount">0</span></div>
+                    <div class="stat-badge">Total VRAM: <span id="totalMemory">0</span> MiB</div>
+                </div>
+            </div>
+            
+            <div id="containerGroups"></div>
+        </div>
     </div>
 
     <script>
-        let refreshIntervalId = null;
-        let currentInterval = 3000;
+        let refreshTimer = null;
+        let currentRefreshInterval = 3000;
+        let currentSortBy = 'memory';
 
-        function setInterval(interval) {
-            currentInterval = interval;
+        function updateInterval(interval) {
+            currentRefreshInterval = interval;
+            
             document.querySelectorAll('.interval-btn').forEach(btn => {
                 btn.classList.remove('active');
-                if (btn.getAttribute('data-interval') == interval) {
+                if (parseInt(btn.getAttribute('data-interval')) === interval) {
                     btn.classList.add('active');
                 }
             });
             
-            if (refreshIntervalId) {
-                clearInterval(refreshIntervalId);
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
             }
-            refreshIntervalId = window.setInterval(loadData, interval);
+            
+            refreshTimer = setInterval(() => loadData(), interval);
+            console.log('Refresh interval updated to:', interval + 'ms');
+        }
+        
+        function setSortBy(sortBy) {
+            currentSortBy = sortBy;
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('sort-' + sortBy).classList.add('active');
+            loadData();
+        }
+        
+        function sortContainers(containers) {
+            return containers.sort((a, b) => {
+                if (currentSortBy === 'memory') {
+                    return b.memory - a.memory;
+                } else if (currentSortBy === 'name') {
+                    return a.name.localeCompare(b.name);
+                } else if (currentSortBy === 'gpu') {
+                    return (a.gpus[0] || 0) - (b.gpus[0] || 0);
+                }
+                return 0;
+            });
+        }
+        
+        function getStatusGroup(status) {
+            const s = status.toLowerCase();
+            if (s.includes('healthy')) return { key: 'healthy', name: '✓ Healthy', icon: '✓' };
+            if (s.includes('up') && !s.includes('paused')) return { key: 'running', name: '▶ Running', icon: '▶' };
+            if (s.includes('paused')) return { key: 'paused', name: '⏸ Paused', icon: '⏸' };
+            if (s.includes('exited') || s.includes('stopped')) return { key: 'stopped', name: '⏹ Stopped', icon: '⏹' };
+            return { key: 'other', name: '○ Other', icon: '○' };
         }
 
         function renderGPUs(gpus) {
             const grid = document.getElementById('gpuGrid');
-            grid.innerHTML = '';
             
-            gpus.forEach(gpu => {
-                const memPercent = (gpu.memory_used / gpu.memory_total * 100).toFixed(1);
-                const tempColor = gpu.temperature > 80 ? '#f44336' : gpu.temperature > 60 ? '#FF9800' : '#4CAF50';
+            gpus.forEach((gpu, idx) => {
+                let card = document.getElementById(`gpu-card-${gpu.index}`);
                 
-                const card = document.createElement('div');
-                card.className = 'gpu-card';
-                card.innerHTML = `
-                    <div class="gpu-header">
-                        <div class="gpu-name">🎮 ${gpu.name}</div>
-                        <div class="gpu-index">GPU ${gpu.index}</div>
-                    </div>
-                    <div class="gpu-stats">
-                        <div class="stat-item">
-                            <div class="stat-label">🌡️ 温度</div>
-                            <div class="stat-value" style="color: ${tempColor}">${gpu.temperature}°C</div>
+                if (!card) {
+                    card = document.createElement('div');
+                    card.className = 'gpu-card';
+                    card.id = `gpu-card-${gpu.index}`;
+                    card.style.animationDelay = (idx * 0.1) + 's';
+                    card.innerHTML = `
+                        <div class="gpu-header">
+                            <div class="gpu-name">
+                                <span>🎮</span>
+                                <span>${gpu.name}</span>
+                            </div>
+                            <div class="gpu-index">GPU ${gpu.index}</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-label">⚡ 功耗</div>
-                            <div class="stat-value">${gpu.power_draw.toFixed(1)}W / ${gpu.power_limit.toFixed(0)}W</div>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <div class="stat-label">💻 GPU 利用率</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill progress-gpu" style="width: ${gpu.utilization}%">${gpu.utilization}%</div>
-                        </div>
-                    </div>
-                    <div style="margin-bottom: 10px;">
-                        <div class="stat-label">💾 显存使用</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill progress-memory" style="width: ${memPercent}%">
-                                ${gpu.memory_used} / ${gpu.memory_total} MiB (${memPercent}%)
+                        <div class="gpu-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">🌡️ Temperature</div>
+                                <div class="stat-value" id="temp-${gpu.index}">--°C</div>
                             </div>
                         </div>
-                    </div>
-                `;
-                grid.appendChild(card);
+                        <div class="metric-bar">
+                            <div class="metric-label">
+                                <span>⚡ Power Draw</span>
+                                <span id="power-text-${gpu.index}">-- / -- W</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-power" id="power-bar-${gpu.index}" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-label">
+                                <span>💻 GPU Utilization</span>
+                                <span id="util-text-${gpu.index}">--%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-gpu" id="util-bar-${gpu.index}" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="metric-bar">
+                            <div class="metric-label">
+                                <span>💾 VRAM Usage</span>
+                                <span id="mem-text-${gpu.index}">-- / -- MiB</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-memory" id="mem-bar-${gpu.index}" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+                
+                const memPercent = (gpu.memory_used / gpu.memory_total * 100).toFixed(1);
+                const powerPercent = (gpu.power_draw / gpu.power_limit * 100).toFixed(1);
+                
+                // Dynamic temperature color
+                let tempColor = '#10b981';
+                if (gpu.temperature >= 85) tempColor = '#dc2626';
+                else if (gpu.temperature >= 80) tempColor = '#ef4444';
+                else if (gpu.temperature >= 75) tempColor = '#f97316';
+                else if (gpu.temperature >= 70) tempColor = '#f59e0b';
+                else if (gpu.temperature >= 60) tempColor = '#eab308';
+                
+                // Dynamic power color
+                let powerColor = '#10b981';
+                if (powerPercent >= 90) powerColor = '#dc2626';
+                else if (powerPercent >= 85) powerColor = '#ef4444';
+                else if (powerPercent >= 75) powerColor = '#f97316';
+                else if (powerPercent >= 65) powerColor = '#f59e0b';
+                else if (powerPercent >= 50) powerColor = '#eab308';
+                
+                document.getElementById(`temp-${gpu.index}`).innerHTML = `${gpu.temperature}°C`;
+                document.getElementById(`temp-${gpu.index}`).style.color = tempColor;
+                
+                document.getElementById(`power-text-${gpu.index}`).textContent = `${gpu.power_draw.toFixed(1)} / ${gpu.power_limit.toFixed(0)} W`;
+                document.getElementById(`power-text-${gpu.index}`).style.color = powerColor;
+                document.getElementById(`power-bar-${gpu.index}`).style.width = `${powerPercent}%`;
+                document.getElementById(`power-bar-${gpu.index}`).style.background = `linear-gradient(90deg, ${powerColor}, ${powerColor}dd)`;
+                
+                document.getElementById(`util-text-${gpu.index}`).textContent = `${gpu.utilization}%`;
+                document.getElementById(`util-bar-${gpu.index}`).style.width = `${gpu.utilization}%`;
+                document.getElementById(`mem-text-${gpu.index}`).textContent = `${gpu.memory_used} / ${gpu.memory_total} MiB`;
+                document.getElementById(`mem-bar-${gpu.index}`).style.width = `${memPercent}%`;
             });
         }
 
         function getStatusInfo(status) {
             const s = status.toLowerCase();
-            
-            if (s.includes('healthy')) {
-                return { class: 'status-healthy', icon: '✓', text: '健康运行' };
-            } else if (s.includes('up') && !s.includes('paused')) {
-                return { class: 'status-running', icon: '▶', text: '运行中' };
-            } else if (s.includes('paused')) {
-                return { class: 'status-paused', icon: '⏸', text: '已暂停' };
-            } else if (s.includes('restarting')) {
-                return { class: 'status-restarting', icon: '🔄', text: '重启中' };
-            } else if (s.includes('exited')) {
-                return { class: 'status-exited', icon: '⏹', text: '已停止' };
-            } else if (s.includes('created')) {
-                return { class: 'status-created', icon: '○', text: '未启动' };
-            } else if (s.includes('removing')) {
-                return { class: 'status-removing', icon: '🗑', text: '移除中' };
-            } else if (s.includes('dead')) {
-                return { class: 'status-dead', icon: '✗', text: '已死亡' };
-            }
+            if (s.includes('healthy')) return { class: 'status-healthy', icon: '✓', text: 'Healthy' };
+            if (s.includes('up') && !s.includes('paused')) return { class: 'status-running', icon: '▶', text: 'Running' };
+            if (s.includes('paused')) return { class: 'status-paused', icon: '⏸', text: 'Paused' };
+            if (s.includes('restarting')) return { class: 'status-restarting', icon: '🔄', text: 'Restarting' };
+            if (s.includes('exited')) return { class: 'status-exited', icon: '⏹', text: 'Stopped' };
+            if (s.includes('created')) return { class: 'status-created', icon: '○', text: 'Created' };
+            if (s.includes('removing')) return { class: 'status-removing', icon: '🗑', text: 'Removing' };
+            if (s.includes('dead')) return { class: 'status-dead', icon: '✗', text: 'Dead' };
             return { class: 'status-created', icon: '?', text: status };
         }
         
         function performAction(containerId, action) {
             const actionText = {
-                'stop': '停止', 'pause': '暂停', 'unpause': '恢复', 
-                'restart': '重启', 'start': '启动'
+                'stop': 'stop', 'pause': 'pause', 'unpause': 'unpause', 
+                'restart': 'restart', 'start': 'start'
             };
             
-            if (!confirm(`确定要${actionText[action]}这个容器吗？`)) {
-                return;
-            }
+            if (!confirm(`Confirm to ${actionText[action]} this container?`)) return;
             
             fetch(`/api/container/${action}/${containerId}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        alert('操作成功！');
                         loadData();
                     } else {
-                        alert('操作失败: ' + data.error);
+                        alert('Operation failed: ' + data.error);
                     }
                 })
-                .catch(err => alert('操作失败: ' + err));
+                .catch(err => alert('Operation failed: ' + err));
         }
         
         function loadData() {
@@ -522,63 +857,110 @@
                 .then(data => {
                     renderGPUs(data.gpus);
                     
-                    const tbody = document.getElementById('tableBody');
-                    tbody.innerHTML = '';
-                    let total = 0;
+                    const groupsContainer = document.getElementById('containerGroups');
+                    let totalMem = 0;
                     
                     if (data.containers.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" class="loading">暂无配置 GPU 的容器</td></tr>';
+                        groupsContainer.innerHTML = '<div class="loading">No GPU containers found</div>';
                         document.getElementById('containerCount').textContent = '0';
                         document.getElementById('totalMemory').textContent = '0';
                         return;
                     }
                     
+                    // Group containers by status
+                    const groups = {};
                     data.containers.forEach(item => {
-                        const row = tbody.insertRow();
-                        row.insertCell(0).innerHTML = `<strong>${item.name}</strong><br><small style="color:#666">${item.image}</small>`;
-                        row.insertCell(1).innerHTML = `<code style="color:#666">${item.id}</code>`;
-                        
-                        const gpuCell = row.insertCell(2);
-                        gpuCell.innerHTML = item.gpus.map(g => `<span class="gpu-badge">GPU ${g}</span>`).join('');
-                        
-                        const statusInfo = getStatusInfo(item.status);
-                        const statusCell = row.insertCell(3);
-                        statusCell.innerHTML = `<span class="status ${statusInfo.class}"><span class="status-icon">${statusInfo.icon}</span>${statusInfo.text}</span>`;
-                        
-                        row.insertCell(4).innerHTML = `<span class="memory">${item.memory.toLocaleString()} MiB</span>`;
-                        
-                        const actionsCell = row.insertCell(5);
-                        const actions = document.createElement('div');
-                        actions.className = 'actions';
-                        
-                        if (item.status.includes('Up') && !item.status.includes('Paused')) {
-                            actions.innerHTML = `
-                                <button class="action-btn btn-pause" onclick="performAction('${item.full_id}', 'pause')">⏸ 暂停</button>
-                                <button class="action-btn btn-restart" onclick="performAction('${item.full_id}', 'restart')">🔄 重启</button>
-                                <button class="action-btn btn-stop" onclick="performAction('${item.full_id}', 'stop')">⏹ 停止</button>
-                            `;
-                        } else if (item.status.includes('Paused')) {
-                            actions.innerHTML = `
-                                <button class="action-btn btn-unpause" onclick="performAction('${item.full_id}', 'unpause')">▶ 恢复</button>
-                                <button class="action-btn btn-stop" onclick="performAction('${item.full_id}', 'stop')">⏹ 停止</button>
-                            `;
-                        } else {
-                            actions.innerHTML = `
-                                <button class="action-btn btn-start" onclick="performAction('${item.full_id}', 'start')">▶ 启动</button>
-                            `;
+                        const group = getStatusGroup(item.status);
+                        if (!groups[group.key]) {
+                            groups[group.key] = { info: group, containers: [] };
                         }
+                        groups[group.key].containers.push(item);
+                        totalMem += item.memory;
+                    });
+                    
+                    // Sort containers within each group
+                    Object.values(groups).forEach(group => {
+                        group.containers = sortContainers(group.containers);
+                    });
+                    
+                    // Render groups in order
+                    const groupOrder = ['healthy', 'running', 'paused', 'stopped', 'other'];
+                    groupsContainer.innerHTML = '';
+                    
+                    groupOrder.forEach(key => {
+                        if (!groups[key]) return;
                         
-                        actionsCell.appendChild(actions);
-                        total += item.memory;
+                        const group = groups[key];
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'container-group';
+                        
+                        groupDiv.innerHTML = `
+                            <div class="group-header ${key}">
+                                <div class="group-title">${group.info.name}</div>
+                                <div class="group-count">${group.containers.length}</div>
+                            </div>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Container Name</th>
+                                        <th>Container ID</th>
+                                        <th>GPU Devices</th>
+                                        <th>Status</th>
+                                        <th>VRAM Usage</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="group-${key}"></tbody>
+                            </table>
+                        `;
+                        
+                        groupsContainer.appendChild(groupDiv);
+                        
+                        const tbody = document.getElementById(`group-${key}`);
+                        group.containers.forEach(item => {
+                            const row = tbody.insertRow();
+                            row.insertCell(0).innerHTML = `<strong>${item.name}</strong><br><small style="color:rgba(255,255,255,0.5)">${item.image}</small>`;
+                            row.insertCell(1).innerHTML = `<code style="color:rgba(255,255,255,0.6);font-size:0.9em">${item.id}</code>`;
+                            
+                            const gpuCell = row.insertCell(2);
+                            gpuCell.innerHTML = item.gpus.map(g => `<span class="gpu-badge">GPU ${g}</span>`).join('');
+                            
+                            const statusInfo = getStatusInfo(item.status);
+                            row.insertCell(3).innerHTML = `<span class="status ${statusInfo.class}"><span>${statusInfo.icon}</span>${statusInfo.text}</span>`;
+                            
+                            row.insertCell(4).innerHTML = `<span class="memory">${item.memory.toLocaleString()} MiB</span>`;
+                            
+                            const actionsCell = row.insertCell(5);
+                            const actions = document.createElement('div');
+                            actions.className = 'actions';
+                            
+                            if (item.status.includes('Up') && !item.status.includes('Paused')) {
+                                actions.innerHTML = `
+                                    <button class="action-btn btn-pause" onclick="performAction('${item.full_id}', 'pause')">⏸ Pause</button>
+                                    <button class="action-btn btn-restart" onclick="performAction('${item.full_id}', 'restart')">🔄 Restart</button>
+                                    <button class="action-btn btn-stop" onclick="performAction('${item.full_id}', 'stop')">⏹ Stop</button>
+                                `;
+                            } else if (item.status.includes('Paused')) {
+                                actions.innerHTML = `
+                                    <button class="action-btn btn-unpause" onclick="performAction('${item.full_id}', 'unpause')">▶ Resume</button>
+                                    <button class="action-btn btn-stop" onclick="performAction('${item.full_id}', 'stop')">⏹ Stop</button>
+                                `;
+                            } else {
+                                actions.innerHTML = `<button class="action-btn btn-start" onclick="performAction('${item.full_id}', 'start')">▶ Start</button>`;
+                            }
+                            
+                            actionsCell.appendChild(actions);
+                        });
                     });
                     
                     document.getElementById('containerCount').textContent = data.containers.length;
-                    document.getElementById('totalMemory').textContent = total.toLocaleString();
-                });
+                    document.getElementById('totalMemory').textContent = totalMem.toLocaleString();
+                })
+                .catch(err => console.error('Failed to load data:', err));
         }
         
         loadData();
-        refreshIntervalId = window.setInterval(loadData, currentInterval);
+        refreshTimer = setInterval(() => loadData(), currentRefreshInterval);
     </script>
 </body>
 </html>
