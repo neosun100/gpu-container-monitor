@@ -133,7 +133,7 @@ pip3 install flask
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # 安装 systemd 服务
@@ -152,7 +152,7 @@ sudo systemctl status gpu-monitor
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # 快速启动
@@ -171,7 +171,7 @@ docker-compose logs -f
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # 安装依赖
@@ -425,8 +425,8 @@ ls -l /path/to/gpu-container-monitor/app.py
 
 ## 📧 联系方式
 
-- GitHub：[@yourusername](https://github.com/yourusername)
-- 问题反馈：[GitHub Issues](https://github.com/yourusername/gpu-container-monitor/issues)
+- GitHub：[@neosun100](https://github.com/neosun100)
+- 问题反馈：[GitHub Issues](https://github.com/neosun100/gpu-container-monitor/issues)
 
 ## 📱 关注我们
 

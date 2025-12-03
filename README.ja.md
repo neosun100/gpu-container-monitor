@@ -133,7 +133,7 @@ pip3 install flask
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # systemdサービスをインストール
@@ -152,7 +152,7 @@ sudo systemctl status gpu-monitor
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # クイックスタート
@@ -171,7 +171,7 @@ docker-compose logs -f
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # 依存関係をインストール
@@ -425,8 +425,8 @@ ls -l /path/to/gpu-container-monitor/app.py
 
 ## 📧 お問い合わせ
 
-- GitHub：[@yourusername](https://github.com/yourusername)
-- 問題報告：[GitHub Issues](https://github.com/yourusername/gpu-container-monitor/issues)
+- GitHub：[@neosun100](https://github.com/neosun100)
+- 問題報告：[GitHub Issues](https://github.com/neosun100/gpu-container-monitor/issues)
 
 ## 📱 フォローする
 

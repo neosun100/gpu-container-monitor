@@ -133,7 +133,7 @@ pip3 install flask
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # Install systemd service
@@ -152,7 +152,7 @@ sudo systemctl status gpu-monitor
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # Quick start
@@ -171,7 +171,7 @@ docker-compose logs -f
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/gpu-container-monitor.git
+git clone https://github.com/neosun100/gpu-container-monitor.git
 cd gpu-container-monitor
 
 # Install dependencies
@@ -425,8 +425,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Issues: [GitHub Issues](https://github.com/yourusername/gpu-container-monitor/issues)
+- GitHub: [@neosun100](https://github.com/neosun100)
+- Issues: [GitHub Issues](https://github.com/neosun100/gpu-container-monitor/issues)
 
 ## 📱 Follow Us
 
