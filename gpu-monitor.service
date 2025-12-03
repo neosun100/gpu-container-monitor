@@ -1,0 +1,15 @@
+[Unit]
+Description=GPU Container Monitor Service
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=neo
+WorkingDirectory=/home/neo/upload/gpu-container-monitor
+ExecStart=/home/neo/anaconda3/bin/python3 /home/neo/upload/gpu-container-monitor/app.py
+Restart=always
+RestartSec=10
+Environment="PATH=/home/neo/anaconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+[Install]
+WantedBy=multi-user.target

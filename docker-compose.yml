@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  gpu-monitor:
+    build: .
+    container_name: gpu-container-monitor
+    ports:
+      - "5001:5000"
+    volumes:
+      # 挂载 Docker socket 以访问主机 Docker
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [utility]
+    restart: unless-stopped
