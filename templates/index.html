@@ -85,6 +85,20 @@
             text-transform: uppercase;
         }
         
+        .live-time {
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 12px 24px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 12px;
+            display: inline-block;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        
         .github-links {
             display: flex;
             gap: 15px;
@@ -618,6 +632,7 @@
                 <h1>GPU MONITOR</h1>
             </div>
             <p class="subtitle">Enterprise Container Intelligence Platform</p>
+            <div class="live-time" id="liveTime">Loading...</div>
             <div class="github-links">
                 <a href="https://github.com/neosun100/gpu-container-monitor" target="_blank" class="github-btn star">
                     <span>⭐</span>
@@ -644,8 +659,8 @@
             <div class="control-group">
                 <div class="interval-group">
                     <span class="interval-label">Auto Refresh</span>
-                    <button class="interval-btn" onclick="updateInterval(1000)" data-interval="1000">1s</button>
-                    <button class="interval-btn active" onclick="updateInterval(3000)" data-interval="3000">3s</button>
+                    <button class="interval-btn active" onclick="updateInterval(1000)" data-interval="1000">1s</button>
+                    <button class="interval-btn" onclick="updateInterval(3000)" data-interval="3000">3s</button>
                     <button class="interval-btn" onclick="updateInterval(5000)" data-interval="5000">5s</button>
                     <button class="interval-btn" onclick="updateInterval(10000)" data-interval="10000">10s</button>
                 </div>
@@ -678,8 +693,21 @@
 
     <script>
         let refreshTimer = null;
-        let currentRefreshInterval = 3000;
+        let currentRefreshInterval = 1000;
         let currentSortBy = 'memory';
+
+        function updateLiveTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            const timeString = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            document.getElementById('liveTime').textContent = timeString;
+        }
 
         function updateInterval(interval) {
             currentRefreshInterval = interval;
@@ -960,6 +988,8 @@
         }
         
         loadData();
+        updateLiveTime();
+        setInterval(updateLiveTime, 1000);
         refreshTimer = setInterval(() => loadData(), currentRefreshInterval);
     </script>
 </body>

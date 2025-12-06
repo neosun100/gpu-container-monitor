@@ -36,3 +36,6 @@ Thumbs.db
 # Environment
 .env
 .env.local
+
+# WeChat article (not for public repo)
+wechat-article.md

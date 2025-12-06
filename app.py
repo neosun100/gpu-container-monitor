@@ -93,18 +93,12 @@ def get_container_gpu_devices(container_id):
             for req in device_requests:
                 if req.get('Driver') == 'nvidia':
                     # 检查 DeviceIDs
-                    device_ids = req.get('DeviceIDs', [])
+                    device_ids = req.get('DeviceIDs') or []
                     for dev_id in device_ids:
                         try:
                             gpu_indices.append(int(dev_id))
                         except:
                             pass
-                    
-                    # 如果没有指定设备，检查 Count（表示使用所有 GPU）
-                    if not device_ids and req.get('Count', 0) == -1:
-                        # 使用所有 GPU
-                        gpu_info = get_gpu_info()
-                        gpu_indices = [g['index'] for g in gpu_info]
         
         # 如果还是没找到，尝试检查环境变量
         if not gpu_indices:

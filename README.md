@@ -25,10 +25,12 @@
   - Start, stop, pause, and restart containers
   - View container status with color-coded indicators
   - See which GPU each container is using
+  - Automatic detection of containers with `NVIDIA_VISIBLE_DEVICES=all`
   
 - 🎨 **Beautiful UI** - Modern, responsive web interface
   - Gradient color themes
-  - Real-time updates (1s/3s/5s/10s intervals)
+  - Real-time updates (1s/3s/5s/10s intervals, default: 1s)
+  - Live clock display to verify page responsiveness
   - Status legend for quick reference
   - Mobile-friendly design
   
@@ -37,6 +39,15 @@
   - Docker container (isolated)
   
 - 🌐 **Multi-language Support** - English, Chinese (Simplified/Traditional), Japanese
+
+## 🆕 Recent Updates
+
+### v1.1.0 (2025-12-06)
+- ✨ Added live clock display showing current time (updates every second)
+- 🐛 Fixed bug where containers with `DeviceIDs=null` were not detected
+- 🐛 Fixed detection of containers using `NVIDIA_VISIBLE_DEVICES=all`
+- ⚡ Changed default refresh interval from 3s to 1s for better responsiveness
+- 🎯 Improved GPU device detection logic for various Docker configurations
 
 ## 📋 Prerequisites
 
