@@ -91,7 +91,17 @@ def get_container_gpu_devices(container_id):
         if result.stdout.strip() and result.stdout.strip() != 'null':
             device_requests = json.loads(result.stdout.strip())
             for req in device_requests:
-                if req.get('Driver') == 'nvidia':
+                # 检查是否为 GPU 请求：
+                # 1. Driver 为 "nvidia" 或空字符串
+                # 2. Capabilities 包含 "gpu"
+                capabilities = req.get('Capabilities', [])
+                has_gpu_capability = any('gpu' in cap if isinstance(cap, list) else cap == 'gpu' 
+                                        for cap in capabilities)
+                
+                driver = req.get('Driver', '')
+                is_nvidia_driver = driver == 'nvidia' or driver == ''
+                
+                if is_nvidia_driver and has_gpu_capability:
                     # 检查 DeviceIDs
                     device_ids = req.get('DeviceIDs') or []
                     for dev_id in device_ids:
@@ -99,6 +109,20 @@ def get_container_gpu_devices(container_id):
                             gpu_indices.append(int(dev_id))
                         except:
                             pass
+                if is_nvidia_driver and has_gpu_capability:
+                    # 检查 DeviceIDs
+                    device_ids = req.get('DeviceIDs') or []
+                    for dev_id in device_ids:
+                        try:
+                            gpu_indices.append(int(dev_id))
+                        except:
+                            pass
+                    
+                    # 如果 DeviceIDs 为空但 Count > 0，说明请求了 GPU 但没指定具体设备
+                    if not device_ids and req.get('Count', 0) > 0:
+                        gpu_info = get_gpu_info()
+                        # 添加所有可用 GPU
+                        gpu_indices.extend([g['index'] for g in gpu_info])
         
         # 如果还是没找到，尝试检查环境变量
         if not gpu_indices:
@@ -112,16 +136,18 @@ def get_container_gpu_devices(container_id):
                     match = re.search(r'NVIDIA_VISIBLE_DEVICES=(.+)', line)
                     if match:
                         devices = match.group(1).strip()
-                        if devices == 'all':
-                            gpu_info = get_gpu_info()
-                            gpu_indices = [g['index'] for g in gpu_info]
-                        else:
-                            for dev in devices.split(','):
-                                try:
-                                    gpu_indices.append(int(dev.strip()))
-                                except:
-                                    pass
+                        if devices and devices != 'void':
+                            if devices == 'all':
+                                gpu_info = get_gpu_info()
+                                gpu_indices = [g['index'] for g in gpu_info]
+                            else:
+                                for dev in devices.split(','):
+                                    try:
+                                        gpu_indices.append(int(dev.strip()))
+                                    except:
+                                        pass
         
+        # 去重并排序
         return sorted(list(set(gpu_indices)))
     except Exception as e:
         return []

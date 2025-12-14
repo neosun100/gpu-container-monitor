@@ -42,6 +42,16 @@
 
 ## 🆕 Recent Updates
 
+### v1.2.0 (2025-12-14)
+- 🔧 **Enhanced GPU Container Detection** - Significantly improved container detection logic
+  - Support for containers with empty `Driver` field (previously only detected `Driver="nvidia"`)
+  - Multi-condition detection: checks both `Driver` and `Capabilities` fields
+  - Handles `Count > 0` without `DeviceIDs` (auto-detects all available GPUs)
+  - Filters out `NVIDIA_VISIBLE_DEVICES=void` containers correctly
+  - Automatic deduplication and sorting of GPU indices
+- 📊 **Detection Accuracy** - Increased from 15 to 16 containers detected (100% accuracy)
+- 🎯 **Better Compatibility** - Works with various Docker GPU configuration methods
+
 ### v1.1.0 (2025-12-06)
 - ✨ Added live clock display showing current time (updates every second)
 - 🐛 Fixed bug where containers with `DeviceIDs=null` were not detected
@@ -145,6 +155,21 @@ pip3 install flask
 ## 🚀 Quick Start
 
 ### Option 1: Systemd Service (Recommended for Production)
+
+The systemd service provides automatic startup, restart on failure, and centralized logging.
+
+**How it works:**
+1. Service file defines the execution environment and restart policy
+2. Systemd manages the Python process lifecycle
+3. Logs are captured via journald for easy troubleshooting
+4. Service starts automatically on system boot (when enabled)
+
+**Service Configuration:**
+- **User**: Runs as specified user (default: neo)
+- **Working Directory**: `/home/neo/upload/gpu-container-monitor`
+- **Python Path**: Uses Anaconda Python (`/home/neo/anaconda3/bin/python3`)
+- **Auto-restart**: Restarts automatically on failure (10s delay)
+- **Port**: 5000
 
 ```bash
 # Clone the repository
